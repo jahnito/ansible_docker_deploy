@@ -1,0 +1,50 @@
+---
+# tasks file for deploy_debian
+- name: Remove conflicting packages
+  apt:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - docker.io
+    - docker-doc
+    - docker-compose
+    - podman-docker
+    - containerd
+    - runc
+
+- name: Update APT Cache (sudo apt-get update)
+  apt:
+    update_cache: yes
+
+- name: Install ca-certificates curl gnupg
+  apt:
+    name: [ca-certificates, curl, gnupg]
+    state: latest
+
+- name: Install Docker keyrings
+  shell: sudo install -m 0755 -d /etc/apt/keyrings
+
+- name: Download GPG key
+  shell: curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+- name: Change mode for GPG key
+  shell: sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+- name: Import repository
+  shell: echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+- name: Update APT Cache part2 (sudo apt-get update)
+  apt:
+    update_cache: yes
+
+- name: Instal Docker binaries
+  apt:
+    name: [docker-ce, docker-ce-cli, containerd.io, docker-buildx-plugin, docker-compose-plugin]
+    state: latest
+
+- name: Verify Docker Engine installation
+  shell: sudo docker run hello-world
+  register: result
+
+- debug:
+    var: result

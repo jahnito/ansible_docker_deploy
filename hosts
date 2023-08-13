@@ -1,0 +1,12 @@
+[staging_servers]
+target1 ansible_host=192.168.3.11 owner=jahn
+target2 ansible_host=192.168.3.12 owner=jahn
+
+[prod_servers]
+prodtarget1 ansible_host=192.168.3.21 owner=admin
+prodtarget2 ansible_host=192.168.3.22 owner=admin
+prodtarget3 ansible_host=192.168.3.23 owner=admin
+
+[servers:children]
+staging_servers
+prod_servers

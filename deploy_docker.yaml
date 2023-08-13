@@ -1,0 +1,11 @@
+---
+- name: Deploy Docker
+  hosts: prod_servers
+  become: yes
+
+  roles:
+    - role: deploy_debian
+      when: ansible_facts['distribution']|lower == 'debian'
+
+    - role: deploy_ubuntu
+      when: ansible_facts['distribution']|lower == 'ubuntu'
